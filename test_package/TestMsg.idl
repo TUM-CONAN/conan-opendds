@@ -1,0 +1,9 @@
+
+//#pragma DCPS_DATA_TYPE "TestMsg"
+
+@topic
+struct TestMsg {
+  @key unsigned long key;
+  string value;
+};
+
