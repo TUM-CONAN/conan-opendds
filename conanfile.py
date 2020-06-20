@@ -15,8 +15,8 @@ class OpenDDSConan(ConanFile):
 
     def source(self):
         git = tools.Git()
-        git.clone("https://github.com/objectcomputing/OpenDDS.git", "branch-DDS-3.14")        
-        
+        #git.clone("https://github.com/objectcomputing/OpenDDS.git", "branch-DDS-3.14")        
+        git.clone("https://github.com/objectcomputing/OpenDDS.git", "master")
 
     def build(self):
         if tools.os_info.is_linux:

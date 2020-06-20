@@ -1,23 +1,28 @@
-# OpenDDS_C++11_Messenger test project from OpenDDS master branch
+# OpenDDS rtps discovery as C++11 test project from OpenDDS master branch
 
-project(OpenDDS_C++11_Messenger CXX)
+# conan is required hard, library name, version and description are configured from conan
+if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
+  include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
+else ()
+  message(FATAL_ERROR "The file conanbuildinfo.cmake doesn't exist, you have to run conan install first")
+endif ()
+
+project(OpenDDS_C++11_RTPS_Discovery CXX)
+
+conan_basic_setup(TARGETS)
+
 cmake_minimum_required(VERSION 3.8.2)
 
 find_package(OpenDDS REQUIRED)
 
-set(CMAKE_CXX_COMPILER ${OPENDDS_COMPILER})
-set(target_prefix "opendds_cmake_cpp11_messenger_")
-set(src "${CMAKE_CURRENT_SOURCE_DIR}/../../../DCPS/C++11/Messenger")
+#set(CMAKE_CXX_COMPILER ${OPENDDS_COMPILER})
+#set(target_prefix "opendds_cmake_cpp11_messenger_")
 set(dst ${CMAKE_CURRENT_BINARY_DIR})
-set(opendds_libs
-  OpenDDS::Dcps
-  OpenDDS::InfoRepoDiscovery OpenDDS::Tcp
-)
 
 # IDL Library
 set(idl "${target_prefix}idl")
 add_library(${idl})
-OPENDDS_TARGET_SOURCES(${idl} "${src}/Idl/Messenger.idl" OPENDDS_IDL_OPTIONS "-Lc++11")
+OPENDDS_TARGET_SOURCES(${idl} "TestMsg.idl" OPENDDS_IDL_OPTIONS "-Lc++11")
 target_link_libraries(${idl} PUBLIC OpenDDS::Dcps)
 set_target_properties(${idl} PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${dst}/Idl"
@@ -30,26 +35,10 @@ if(NOT ("C++11" IN_LIST mappings))
 endif()
 
 # Publisher
-set(publisher "${target_prefix}publisher")
-add_executable(${publisher}
-  "${src}/Publisher/publisher.cpp"
-)
-set_target_properties(${publisher} PROPERTIES
-  OUTPUT_NAME "publisher"
-  RUNTIME_OUTPUT_DIRECTORY "${dst}/Publisher"
-)
-target_link_libraries(${publisher} ${opendds_libs} ${idl})
+set(app_pub "publisher")
+add_executable(${app_pub} "publisher.cpp")
+target_link_libraries(${app_pub} PUBLIC CONAN_PKG::OpenDDS ${idl})
 
-# Subscriber
-set(subscriber "${target_prefix}subscriber")
-add_executable(${subscriber}
-  "${src}/Subscriber/subscriber.cpp"
-)
-set_target_properties(${subscriber} PROPERTIES
-  OUTPUT_NAME "subscriber"
-  RUNTIME_OUTPUT_DIRECTORY "${dst}/Subscriber"
-)
-target_link_libraries(${subscriber} ${opendds_libs} ${idl})
-
-# run_test.pl
-configure_file("${src}/run_test.pl" "${dst}/run_test.pl" COPYONLY)
+set(app_sub "subscriber")
+add_executable(${app_sub} "subscriber.cpp" )
+target_link_libraries(${app_sub} PUBLIC CONAN_PKG::OpenDDS ${idl})
